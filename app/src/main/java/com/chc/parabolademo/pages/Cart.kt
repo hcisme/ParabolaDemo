@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -54,9 +56,7 @@ fun Cart(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .systemBarsPadding()
-            .onGloballyPositioned { parentCoords ->
-                parentWindowPos = parentCoords.positionInWindow()
-            }
+            .onPlaced { parentWindowPos = it.positionInWindow() }
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize()
@@ -80,10 +80,7 @@ fun Cart(modifier: Modifier = Modifier) {
                             contentDescription = null,
                             modifier = Modifier
                                 .size(iconSize.dp)
-                                .onGloballyPositioned { layoutCoordinates ->
-                                    iconPos =
-                                        layoutCoordinates.positionInWindow() - parentWindowPos
-                                }
+                                .onPlaced { iconPos = it.positionInWindow() - parentWindowPos }
                                 .clickable(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() }
@@ -117,13 +114,13 @@ fun Cart(modifier: Modifier = Modifier) {
                 .background(MaterialTheme.colorScheme.errorContainer)
                 .border(2.dp, Color.White, CircleShape)
                 .align(Alignment.BottomStart)
-                .onGloballyPositioned { layoutCoordinates ->
-                    val topLeftInWindow = layoutCoordinates.positionInWindow()
+                .onPlaced { layoutCoordinates ->
+                    val topLeftInParent = layoutCoordinates.positionInParent()
                     val centerOffset = Offset(
                         x = layoutCoordinates.size.width / 2f - ballHalfSize,
                         y = layoutCoordinates.size.height / 2f - ballHalfSize
                     )
-                    cartPosition = topLeftInWindow - parentWindowPos + centerOffset
+                    cartPosition = topLeftInParent + centerOffset
                 },
             contentAlignment = Alignment.Center
         ) {
