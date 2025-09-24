@@ -64,7 +64,7 @@ fun parabolicOffset(
     start: Offset,
     end: Offset,
     progress: Float,
-    peakHeight: Float = -400f // 负值表示向上弧形
+    peakHeight: Float = -400f
 ): Offset {
     // 线性插值 X
     val x = start.x + (end.x - start.x) * progress

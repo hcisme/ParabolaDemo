@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +42,12 @@ import coil3.compose.AsyncImage
 @Composable
 fun Cart(modifier: Modifier = Modifier) {
     val density = LocalDensity.current
+    var itemCount by remember { mutableIntStateOf(0) }
     var parentWindowPos by remember { mutableStateOf(Offset.Zero) }
     var cartPosition by remember { mutableStateOf(Offset.Zero) }
     val ballList = remember { mutableStateListOf<BallAnimation>() }
+    val iconSize = remember { 24 }
+    val ballHalfSize = remember { with(density) { (iconSize / 2).dp.toPx() } }
 
     Box(
         modifier = modifier
@@ -67,13 +73,13 @@ fun Cart(modifier: Modifier = Modifier) {
                         )
                     },
                     trailingContent = {
-                        var iconPos = remember { Offset.Zero }
+                        var iconPos by remember { mutableStateOf(Offset.Zero) }
 
                         Icon(
                             imageVector = Icons.Default.AddCircle,
                             contentDescription = null,
                             modifier = Modifier
-                                .size(24.dp)
+                                .size(iconSize.dp)
                                 .onGloballyPositioned { layoutCoordinates ->
                                     iconPos =
                                         layoutCoordinates.positionInWindow() - parentWindowPos
@@ -83,6 +89,7 @@ fun Cart(modifier: Modifier = Modifier) {
                                     interactionSource = remember { MutableInteractionSource() }
                                 ) {
                                     ballList.add(BallAnimation(startPosition = iconPos))
+                                    itemCount += 1
                                 }
                         )
                     }
@@ -113,14 +120,27 @@ fun Cart(modifier: Modifier = Modifier) {
                 .onGloballyPositioned { layoutCoordinates ->
                     val topLeftInWindow = layoutCoordinates.positionInWindow()
                     val centerOffset = Offset(
-                        x = layoutCoordinates.size.width / 2f - with(density) { 12.dp.toPx() },
-                        y = layoutCoordinates.size.height / 2f - with(density) { 12.dp.toPx() }
+                        x = layoutCoordinates.size.width / 2f - ballHalfSize,
+                        y = layoutCoordinates.size.height / 2f - ballHalfSize
                     )
                     cartPosition = topLeftInWindow - parentWindowPos + centerOffset
                 },
             contentAlignment = Alignment.Center
         ) {
-            Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+            BadgedBox(
+                badge = {
+                    if (itemCount > 0) {
+                        Badge(
+                            containerColor = Color.Red,
+                            contentColor = Color.White
+                        ) {
+                            Text("$itemCount")
+                        }
+                    }
+                }
+            ) {
+                Icon(imageVector = Icons.Default.ShoppingCart, contentDescription = null)
+            }
         }
     }
 }
